@@ -867,9 +867,11 @@ class FusedMoE(CustomOp):
         self.apply_router_weight_on_input = apply_router_weight_on_input
         self.activation = activation
 
-        if self.scoring_func != "softmax" and not self.use_grouped_topk:
-            raise ValueError("Only softmax scoring function is supported for "
-                             "non-grouped topk.")
+        if (not self.custom_routing_function and self.scoring_func != "softmax"
+                and not self.use_grouped_topk):
+            raise ValueError(
+                "Only softmax scoring function is supported for "
+                "non-grouped topk and no custom_routing_function.")
 
         if vllm_config.model_config is not None:
             model_dtype = vllm_config.model_config.dtype
@@ -1493,6 +1495,16 @@ class FusedMoE(CustomOp):
                 renormalize=renormalize,
                 indices_type=indices_type,
             )
+        elif scoring_func != 'softmax' or e_score_correction_bias:
+            topk_weights, topk_ids = custom_routing_function(
+                hidden_states=hidden_states,
+                gating_output=router_logits,
+                topk=top_k,
+                renormalize=renormalize,
+                scoring_func=scoring_func,
+                e_score_correction_bias=e_score_correction_bias)
+            if indices_type is not None:
+                topk_ids = topk_ids.to(dtype=indices_type)
         else:
             topk_weights, topk_ids = custom_routing_function(
                 hidden_states=hidden_states,

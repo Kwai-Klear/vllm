@@ -111,6 +111,7 @@ _TEXT_GENERATION_MODELS = {
     "MistralForCausalLM": ("llama", "LlamaForCausalLM"),
     "MixtralForCausalLM": ("mixtral", "MixtralForCausalLM"),
     "QuantMixtralForCausalLM": ("mixtral_quant", "MixtralForCausalLM"),
+    "KlearMoeForCausalLM": ("klear_moe", "KlearMoeForCausalLM"), # noqa: E501
     # transformers's mpt class has lower case
     "MptForCausalLM": ("mpt", "MPTForCausalLM"),
     "MPTForCausalLM": ("mpt", "MPTForCausalLM"),
